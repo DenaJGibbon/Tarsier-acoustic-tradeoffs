@@ -17,6 +17,7 @@ hist(performance.tables.female$noterate)
 hist(performance.tables.female$bandwidth)
 table(performance.tables.female$pair) 
 
+
 ggplot(performance.tables.female, aes(noterate, bandwidth)) + 
   geom_jitter(width = 0.05, alpha = 0.2) +
   geom_smooth(method = "lm", se = FALSE)
