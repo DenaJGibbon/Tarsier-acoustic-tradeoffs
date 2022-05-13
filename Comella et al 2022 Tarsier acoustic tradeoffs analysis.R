@@ -8,15 +8,20 @@ library(ggplot2)
 library(ggpubr)
 library(flextable)
 
+
+# Female tarsier model selection ------------------------------------------
+
 # Read in data
 performance.tables.female <- read.csv("performance.tables.female.csv")
 performance.tables.female$pair <- as.factor(performance.tables.female$pair)
+
+# Standardize note rate
+performance.tables.female$noterate <- performance.tables.female$noterate/3
 
 # Check distribution of variables
 hist(performance.tables.female$noterate)
 hist(performance.tables.female$bandwidth)
 table(performance.tables.female$pair) 
-
 
 ggplot(performance.tables.female, aes(noterate, bandwidth)) + 
   geom_jitter(width = 0.05, alpha = 0.2) +
@@ -70,16 +75,6 @@ m2female.bandwidth
 # noterate  -3729.79    400.91 -4508.16 -2922.43 1.00     4997     4279
 plot(m2female.bandwidth)
 
-m3female.bandwidth <-  brms::brm(bandwidth ~ noterate + (1|pair) + (0 + noterate|pair), 
-                                 data=performance.tables.female, iter = 4000,
-                                 control = list(adapt_delta = 0.999))
-m3female.bandwidth <- brms::add_criterion(m3female.bandwidth, "loo")
-m3female.bandwidth
-# Population-Level Effects: 
-#           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-# Intercept  8959.80    347.87  8280.59  9663.87 1.00     3770     5616
-# noterate  -3716.99    385.31 -4446.14 -2955.13 1.00     5158     4243
-plot(m3female.bandwidth)
 
 brms::loo_compare(m0female.bandwidth, m1female.bandwidth, m2female.bandwidth, criterion = "loo")
 # elpd_diff se_diff
@@ -88,9 +83,13 @@ brms::loo_compare(m0female.bandwidth, m1female.bandwidth, m2female.bandwidth, cr
 # m2female.bandwidth  -0.7       0.7  
 # m0female.bandwidth -68.8      12.8 
 
-# Now to males
+
+# Male model selection ----------------------------------------------------
 # Read in data
 performance.tables.male <- read.csv('performance.tables.male.csv')
+
+# Standardize note rate
+performance.tables.male$noterate <- performance.tables.male$noterate/3
 
 performance.tables.male$pair <- as.factor(performance.tables.male$pair)
 
@@ -197,6 +196,9 @@ TradeoffsPlot <- ggscatter(data=performance.tables, x='noterate','bandwidth',  c
   theme(legend.position = "None")
 
 PlotColors <- matlab::jet.colors(length(unique(performance.tables$pair)))
+
+
+# Scatterplot by pair -----------------------------------------------------
 
 PlotColorsMales <-PlotColors[(unique(performance.tables$pair)) %in% (unique(performance.tables.male$pair))]
 PlotColorsFemales <-PlotColors[(unique(performance.tables$pair)) %in% (unique(performance.tables.female$pair))]
